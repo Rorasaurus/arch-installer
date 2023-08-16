@@ -24,13 +24,12 @@ pacman -Syy
 #mkfs.fat -F 32 /dev/sda1
 #mkfs.btrfs /dev/sda2
 
-
 #mount /dev/sda2 /mnt
 #mkdir -p /mnt/boot/efi
 #mount /dev/sda1 /mnt/boot/efi
 
 pacstrap /mnt base linux-firmware linux vim
-genfstab -U /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >>/mnt/etc/fstab
 
 arch-chroot /mnt
 
@@ -39,10 +38,10 @@ hwclock --systohc
 
 sed -i '/en_GB.UTF-8 UTF-8/s/^#//g' /etc/locale.gen
 locale-gen
-echo "LANG=en_GB.UTF-8" > /etc/locale.conf
-echo "KEYMAP=${country_short}" > /etc/vconsole.conf
+echo "LANG=en_GB.UTF-8" >/etc/locale.conf
+echo "KEYMAP=${country_short}" >/etc/vconsole.conf
 
-echo "${user}-arch" > /etc/hostname
+echo "${user}-arch" >/etc/hostname
 
 echo '>>> Set root password'
 passwd
@@ -50,7 +49,7 @@ passwd
 pacman -S grub neovim efibootmgr networkmanager network-manager-applet mtools dosfstools git linux-headers os-prober sudo vi cmake pkg-config
 
 # Alternative if above fails
-#for i in grub efibootmgr networkmanager network-manager-applet mtools dosfstools git linux-headers sudo vi; do 
+#for i in grub efibootmgr networkmanager network-manager-applet mtools dosfstools git linux-headers sudo vi; do
 #    echo $i
 #    pacman -S $i
 #done
@@ -75,8 +74,8 @@ ip address del ${current_ip} dev ${wifi_dev}
 nmcli device wifi connect '' password ''
 
 # Configure DNS
-echo '[global-dns-domain-*]' > /etc/NetworkManager/conf.d/dns-servers.conf
-echo "servers=${dns_1},${dns_2}" >> /etc/NetworkManager/conf.d/dns-servers.conf
+echo '[global-dns-domain-*]' >/etc/NetworkManager/conf.d/dns-servers.conf
+echo "servers=${dns_1},${dns_2}" >>/etc/NetworkManager/conf.d/dns-servers.conf
 
 # Configure ssh-agent
 mkdir -p /home/${user}/.config/systemd/user/ssh-agent.service
@@ -96,7 +95,7 @@ ExecStart=/usr/bin/ssh-agent -D -a $SSH_AUTH_SOCK
 WantedBy=default.target
 EOF
 
-echo 'export SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket' >> $(HOME)/.bashrc
+echo 'export SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket' >>$(HOME)/.bashrc
 
 chown -R ${user}:${user} /home/${user}/.config
 
@@ -119,7 +118,7 @@ makepkg -si
 # Install Hyprland
 git clone https://github.com/Rorasaurus/hyprland.git
 hyprland/
-chmod +x set-hypr 
+chmod +x set-hypr
 /bin/bash ./set-hypr
 
 # Copy configs
@@ -127,3 +126,8 @@ mkdir /home/${user}/.config
 cp -rf configs/* /home/${user}/.config
 chown -R ${user}:${user} /home/${user}/.config
 
+# Configure NeoVim
+pacman -S neovim
+git clone https://github.com/LazyVim/starter /home/${user}/.config/nvim
+rm -rf /home/${user}/.config/nvim/.git
+chown ${user}:${user} /home/${user}/.config/nvim
