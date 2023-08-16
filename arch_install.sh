@@ -100,6 +100,8 @@ echo 'export SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket' >> $(HOME)/.bash
 
 chown -R ${user}:${user} /home/${user}/.config
 
+su - ${user} -c "systemctl --user enable ssh-agent"
+
 # Setup audio
 pacman -S pulseaudio
 
