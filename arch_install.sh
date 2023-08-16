@@ -122,5 +122,8 @@ hyprland/
 chmod +x set-hypr 
 /bin/bash ./set-hypr
 
-# Install LightDM
+# Copy configs
+mkdir /home/${user}/.config
+cp -rf configs/* /home/${user}/.config
+chown -R ${user}:${user} /home/${user}/.config
 
