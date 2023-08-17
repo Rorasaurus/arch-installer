@@ -136,7 +136,7 @@ cp -rf configs/* ${usr_home}/.config
 chown -R ${user}:${user} ${usr_home}/.config
 
 # Configure NeoVim
-pacman -S neovim
+pacman -S neovim unzip
 git clone https://github.com/LazyVim/starter ${usr_home}/.config/nvim
 rm -rf ${usr_home}/.config/nvim/.git
 chown ${user}:${user} ${usr_home}/.config/nvim
