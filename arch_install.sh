@@ -8,6 +8,7 @@ country_long='United Kingdom'
 country_short='uk'
 dns_1='192.168.1.2'
 dns_2='1.1.1.1'
+usr_home="/home/${user}"
 
 # Initial setup
 loadkeys ${country_short}
@@ -78,9 +79,9 @@ echo '[global-dns-domain-*]' >/etc/NetworkManager/conf.d/dns-servers.conf
 echo "servers=${dns_1},${dns_2}" >>/etc/NetworkManager/conf.d/dns-servers.conf
 
 # Configure ssh-agent
-mkdir -p /home/${user}/.config/systemd/user/ssh-agent.service
+mkdir -p ${usr_home}/.config/systemd/user/ssh-agent.service
 
-cat <<EOF >>/home/${user}/.config/systemd/user/ssh-agent.service
+cat <<EOF >>${usr_home}/.config/systemd/user/ssh-agent.service
 [Unit]
 Description=SSH key agent
 
@@ -95,9 +96,9 @@ ExecStart=/usr/bin/ssh-agent -D -a $SSH_AUTH_SOCK
 WantedBy=default.target
 EOF
 
-echo 'export SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket' >>$(HOME)/.bashrc
+echo 'export SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket' >>${usr_home}/.bashrc
 
-chown -R ${user}:${user} /home/${user}/.config
+chown -R ${user}:${user} ${usr_home}/.config
 
 su - ${user} -c "systemctl --user enable ssh-agent"
 
@@ -121,13 +122,21 @@ hyprland/
 chmod +x set-hypr
 /bin/bash ./set-hypr
 
+# Run Hyprland after tty login
+cat <<EOF >>${usr_home}/.bashrc
+# Run Hyprland after tty1 login
+if [[ $(tty) == "/dev/tty1" ]]; then
+	exec Hyprland
+fi
+EOF
+
 # Copy configs
-mkdir /home/${user}/.config
-cp -rf configs/* /home/${user}/.config
-chown -R ${user}:${user} /home/${user}/.config
+mkdir ${usr_home}/.config
+cp -rf configs/* ${usr_home}/.config
+chown -R ${user}:${user} ${usr_home}/.config
 
 # Configure NeoVim
 pacman -S neovim
-git clone https://github.com/LazyVim/starter /home/${user}/.config/nvim
-rm -rf /home/${user}/.config/nvim/.git
-chown ${user}:${user} /home/${user}/.config/nvim
+git clone https://github.com/LazyVim/starter ${usr_home}/.config/nvim
+rm -rf ${usr_home}/.config/nvim/.git
+chown ${user}:${user} ${usr_home}/.config/nvim
